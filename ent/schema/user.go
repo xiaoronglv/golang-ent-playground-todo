@@ -23,5 +23,8 @@ func (User) Edges() []ent.Edge {
 	// to todos
 	return []ent.Edge{
 		edge.To("todos", Todo.Type),
+		edge.To("books", Book.Type).StorageKey(
+			edge.Column("user_id"),
+		),
 	}
 }

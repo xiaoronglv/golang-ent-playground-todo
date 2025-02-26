@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"todo/ent/book"
 	"todo/ent/todo"
 	"todo/ent/user"
 
@@ -74,6 +75,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			book.Table: book.ValidColumn,
 			todo.Table: todo.ValidColumn,
 			user.Table: user.ValidColumn,
 		})

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"todo/ent/book"
 	"todo/ent/todo"
 	"todo/ent/user"
 
@@ -39,6 +40,21 @@ func (uc *UserCreate) AddTodos(t ...*Todo) *UserCreate {
 		ids[i] = t[i].ID
 	}
 	return uc.AddTodoIDs(ids...)
+}
+
+// AddBookIDs adds the "books" edge to the Book entity by IDs.
+func (uc *UserCreate) AddBookIDs(ids ...int) *UserCreate {
+	uc.mutation.AddBookIDs(ids...)
+	return uc
+}
+
+// AddBooks adds the "books" edges to the Book entity.
+func (uc *UserCreate) AddBooks(b ...*Book) *UserCreate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uc.AddBookIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -122,6 +138,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(todo.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.BooksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.BooksTable,
+			Columns: []string{user.BooksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

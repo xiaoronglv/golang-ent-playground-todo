@@ -8,6 +8,28 @@ import (
 )
 
 var (
+	// BooksColumns holds the columns for the "books" table.
+	BooksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "author", Type: field.TypeString},
+		{Name: "year", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt, Nullable: true},
+	}
+	// BooksTable holds the schema information for the "books" table.
+	BooksTable = &schema.Table{
+		Name:       "books",
+		Columns:    BooksColumns,
+		PrimaryKey: []*schema.Column{BooksColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "books_users_books",
+				Columns:    []*schema.Column{BooksColumns[4]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// TodosColumns holds the columns for the "todos" table.
 	TodosColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -43,11 +65,13 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		BooksTable,
 		TodosTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	BooksTable.ForeignKeys[0].RefTable = UsersTable
 	TodosTable.ForeignKeys[0].RefTable = UsersTable
 }

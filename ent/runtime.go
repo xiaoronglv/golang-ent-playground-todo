@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"todo/ent/book"
 	"todo/ent/schema"
 	"todo/ent/todo"
 	"todo/ent/user"
@@ -12,6 +13,20 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	bookFields := schema.Book{}.Fields()
+	_ = bookFields
+	// bookDescTitle is the schema descriptor for title field.
+	bookDescTitle := bookFields[0].Descriptor()
+	// book.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	book.TitleValidator = bookDescTitle.Validators[0].(func(string) error)
+	// bookDescAuthor is the schema descriptor for author field.
+	bookDescAuthor := bookFields[1].Descriptor()
+	// book.AuthorValidator is a validator for the "author" field. It is called by the builders before save.
+	book.AuthorValidator = bookDescAuthor.Validators[0].(func(string) error)
+	// bookDescYear is the schema descriptor for year field.
+	bookDescYear := bookFields[2].Descriptor()
+	// book.YearValidator is a validator for the "year" field. It is called by the builders before save.
+	book.YearValidator = bookDescYear.Validators[0].(func(int) error)
 	todoFields := schema.Todo{}.Fields()
 	_ = todoFields
 	// todoDescTitle is the schema descriptor for title field.

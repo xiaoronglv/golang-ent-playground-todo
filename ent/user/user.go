@@ -16,6 +16,8 @@ const (
 	FieldName = "name"
 	// EdgeTodos holds the string denoting the todos edge name in mutations.
 	EdgeTodos = "todos"
+	// EdgeBooks holds the string denoting the books edge name in mutations.
+	EdgeBooks = "books"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// TodosTable is the table that holds the todos relation/edge.
@@ -25,6 +27,13 @@ const (
 	TodosInverseTable = "todos"
 	// TodosColumn is the table column denoting the todos relation/edge.
 	TodosColumn = "user_todos"
+	// BooksTable is the table that holds the books relation/edge.
+	BooksTable = "books"
+	// BooksInverseTable is the table name for the Book entity.
+	// It exists in this package in order to avoid circular dependency with the "book" package.
+	BooksInverseTable = "books"
+	// BooksColumn is the table column denoting the books relation/edge.
+	BooksColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -74,10 +83,31 @@ func ByTodos(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTodosStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByBooksCount orders the results by books count.
+func ByBooksCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newBooksStep(), opts...)
+	}
+}
+
+// ByBooks orders the results by books terms.
+func ByBooks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBooksStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newTodosStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TodosInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, TodosTable, TodosColumn),
+	)
+}
+func newBooksStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BooksInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, BooksTable, BooksColumn),
 	)
 }
